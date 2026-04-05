@@ -13,6 +13,24 @@ import {
 } from "recharts";
 import { streamContextBrief } from "../lib/api";
 
+function renderMarkdown(text: string): React.ReactNode {
+  return text.split("\n").map((line, lineIdx, lines) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    const rendered = parts.map((part, partIdx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+    return (
+      <span key={lineIdx}>
+        {rendered}
+        {lineIdx < lines.length - 1 && <br />}
+      </span>
+    );
+  });
+}
+
 interface MemoryPanelProps {
   sentimentScores: number[];
   sessionEnded: boolean;
@@ -216,8 +234,8 @@ export default function MemoryPanel({
               {faced && (
                 <div>
                   <p className="font-semibold text-gray-500 mb-1">What the customer faced</p>
-                  <p className="whitespace-pre-wrap">
-                    {faced}
+                  <p>
+                    {renderMarkdown(faced)}
                     {!sessionSummaryDone && !summary && (
                       <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 animate-pulse rounded-sm" />
                     )}
@@ -227,8 +245,8 @@ export default function MemoryPanel({
               {summary && (
                 <div>
                   <p className="font-semibold text-gray-500 mb-1">Conversation summary</p>
-                  <p className="whitespace-pre-wrap">
-                    {summary}
+                  <p>
+                    {renderMarkdown(summary)}
                     {!sessionSummaryDone && (
                       <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 animate-pulse rounded-sm" />
                     )}
@@ -237,8 +255,8 @@ export default function MemoryPanel({
               )}
               {/* Show raw text if sections haven't parsed yet */}
               {!faced && !summary && sessionSummary && (
-                <p className="whitespace-pre-wrap">
-                  {sessionSummary}
+                <p>
+                  {renderMarkdown(sessionSummary)}
                   {!sessionSummaryDone && (
                     <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 animate-pulse rounded-sm" />
                   )}
@@ -255,8 +273,8 @@ export default function MemoryPanel({
           Pre-Session Brief
         </p>
         {brief ? (
-          <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {brief}
+          <p className="text-xs text-gray-700 leading-relaxed">
+            {renderMarkdown(brief)}
             {!briefDone && (
               <span className="inline-block w-1.5 h-3 bg-gray-400 ml-0.5 animate-pulse rounded-sm" />
             )}

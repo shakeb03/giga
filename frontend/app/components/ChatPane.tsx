@@ -3,6 +3,25 @@
 import { useEffect, useRef } from "react";
 import type { Message } from "../lib/api";
 
+// Renders **bold** and line breaks from plain text
+function renderMarkdown(text: string): React.ReactNode {
+  return text.split("\n").map((line, lineIdx, lines) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    const rendered = parts.map((part, partIdx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+    return (
+      <span key={lineIdx}>
+        {rendered}
+        {lineIdx < lines.length - 1 && <br />}
+      </span>
+    );
+  });
+}
+
 interface ChatPaneProps {
   messages: Message[];
   streamingContent?: string;
@@ -38,7 +57,7 @@ export default function ChatPane({ messages, streamingContent }: ChatPaneProps) 
                 : "bg-gray-100 text-gray-800 rounded-bl-sm"
             }`}
           >
-            {msg.content}
+            {renderMarkdown(msg.content)}
             {streamingContent &&
               i === allMessages.length - 1 &&
               msg.role === "assistant" && (
